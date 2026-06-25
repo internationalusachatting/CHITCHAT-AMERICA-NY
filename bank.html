@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Bank Dashboard</title>
+
+<style>
+body{
+    margin:0;
+    background:#0f172a;
+    font-family:"Times New Roman", serif;
+    color:white;
+}
+
+.wrapper{
+    max-width:900px;
+    margin:20px auto;
+    padding:20px;
+}
+
+.header{
+    background:linear-gradient(90deg,#2563eb,#06b6d4);
+    padding:20px;
+    border-radius:14px;
+    text-align:center;
+    font-size:26px;
+    font-weight:bold;
+}
+
+.card{
+    margin-top:20px;
+    background:#111827;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 10px 25px rgba(0,0,0,.4);
+}
+
+.balance{
+    margin-top:15px;
+    padding:15px;
+    background:linear-gradient(90deg,#0ea5e9,#22c55e);
+    border-radius:12px;
+    text-align:center;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.btn{
+    padding:12px 18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    color:white;
+}
+
+.transfer{
+    background:#22c55e;
+    text-decoration:none;
+    display:inline-block;
+}
+
+.deposit{
+    background:#22c55e;
+    text-decoration:none;
+    display:inline-block;
+}
+
+.popup{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.65);
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+.popup-box{
+    background:#111827;
+    width:90%;
+    max-width:340px;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+}
+
+.popup-box input{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    margin-top:10px;
+    box-sizing:border-box;
+}
+
+.green-btn{
+    background:green;
+    width:100%;
+    margin-top:10px;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    color:white;
+    cursor:pointer;
+}
+
+.green{ color:#00e676; }
+.red{ color:#ff5252; }
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+    <div class="header">
+        PAYONEER VIRTUAL BANK
+    </div>
+
+    <div class="card">
+
+        <h3 style="color:#93c5fd;">Account Summary</h3>
+
+        <p><strong>Account Name:</strong> Virtual Checking</p>
+
+        <p>
+            <strong>Status:</strong>
+            <span style="color:#22c55e;font-weight:bold;">ACTIVE</span>
+        </p>
+
+        <p><strong>CODE:</strong> <span style="color:#94a3b8;">EK29202392KE</span></p>
+
+        <div class="balance">
+            $<span id="balance">10.67</span>
+        </div>
+
+        <br>
+
+        <button class="btn transfer" id="transferBtn">
+            Transfer
+        </button>
+
+        <a href="https://paynecta.co.ke/pay/chitchat"
+           target="_blank"
+           class="btn deposit">
+           Deposit
+        </a>
+
+    </div>
+
+    <div class="card">
+
+        <h3 style="color:#93c5fd;">Recent Transactions</h3>
+
+        <p style="color:#94a3b8;">Nill</p>
+
+    </div>
+
+</div>
+
+<div id="popup" class="popup">
+    <div class="popup-box">
+
+        <h3 class="green">TRANSFER DETAILS</h3>
+
+        <input type="text" id="name" placeholder="FULL NAME">
+        <input type="text" id="mpesa" placeholder="M-PESA NUMBER">
+        <input type="number" id="amount" placeholder="AMOUNT ($)">
+
+        <button class="green-btn" onclick="withdrawMoney()">
+            WITHDRAW MONEY
+        </button>
+
+    </div>
+</div>
+
+<div id="convertPage" class="popup">
+    <div class="popup-box">
+        <h3 class="green">SEARCHING & CONVERTING...</h3>
+    </div>
+</div>
+
+<div id="withdrawPage" class="popup">
+    <div class="popup-box">
+
+        <h3 class="green" id="withdrawText"></h3>
+
+        <button class="green-btn" onclick="submitWithdraw()">
+            SUBMIT
+        </button>
+
+    </div>
+</div>
+
+<div id="finalPage" class="popup">
+    <div class="popup-box">
+
+        <h3 class="red">
+            DEAR USER, YOUR NEXT PAYDAY WILL BE ON 15th JUNE 2026.
+        </h3>
+
+        <p class="green" style="font-weight:bold;">
+            THANK YOU FOR USING OUR SERVICES.
+        </p>
+
+    </div>
+</div>
+
+<script>
+
+let usd = 0;
+let ksh = 0;
+
+const ratePerSecond = 5 / (24 * 60 * 60);
+
+setInterval(() => {
+    let bal = document.getElementById("balance");
+    let current = parseFloat(bal.innerText);
+    current += ratePerSecond;
+    bal.innerText = current.toFixed(5);
+}, 1000);
+
+document.getElementById("transferBtn").onclick = function () {
+    document.getElementById("popup").style.display = "flex";
+};
+
+function convert(amount){
+    return amount * 130;
+}
+
+function withdrawMoney(){
+
+    usd = parseFloat(document.getElementById("amount").value);
+
+    if(!usd || usd <= 0){
+        alert("Enter valid amount");
+        return;
+    }
+
+    document.getElementById("popup").style.display = "none";
+    document.getElementById("convertPage").style.display = "flex";
+
+    setTimeout(() => {
+
+        ksh = convert(usd);
+
+        setTimeout(() => {
+
+            document.getElementById("convertPage").style.display = "none";
+            document.getElementById("withdrawPage").style.display = "flex";
+
+            document.getElementById("withdrawText").innerText =
+                "WITHDRAW KSH " + ksh;
+
+        }, 1800);
+
+    }, 1500);
+}
+
+function submitWithdraw(){
+
+    document.getElementById("withdrawPage").style.display = "none";
+    document.getElementById("finalPage").style.display = "flex";
+
+    setTimeout(() => {
+        document.getElementById("finalPage").style.display = "none";
+    }, 6000);
+}
+
+</script>
+
+</body>
+</html>
